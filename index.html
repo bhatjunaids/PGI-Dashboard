@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Uttar Pradesh · PGI 2024-25 Rankings Dashboard</title>
+<style>
+:root{
+ --navy:#15294D; --navy2:#22406E; --orange:#E0712E; --green:#2E8B57; --gold:#C99A2E;
+ --red:#C0392B; --ink:#1A2238; --mute:#667085; --line:#E2E8F2; --tint:#F4F6FB; --card:#FFFFFF;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,Helvetica,sans-serif;background:#EEF1F7;color:var(--ink);font-size:14px;line-height:1.45}
+.wrap{max-width:1280px;margin:0 auto;padding:0 18px 60px}
+
+/* header */
+header{background:linear-gradient(135deg,#15294D 0%,#22406E 100%);color:#fff;padding:26px 0 22px}
+.head-inner{max-width:1280px;margin:0 auto;padding:0 18px;display:flex;flex-wrap:wrap;align-items:center;gap:22px;justify-content:space-between}
+.h-title{font-size:13px;letter-spacing:2px;color:var(--orange);font-weight:700;text-transform:uppercase}
+.h-main{font-size:30px;font-weight:800;margin-top:4px;font-family:Cambria,Georgia,serif}
+.h-sub{font-size:13px;color:#AEBED6;margin-top:6px}
+.h-stats{display:flex;gap:14px;flex-wrap:wrap}
+.h-stat{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);border-radius:10px;padding:10px 16px;text-align:center;min-width:96px}
+.h-stat b{display:block;font-size:22px;font-weight:800;font-family:Cambria,Georgia,serif}
+.h-stat span{font-size:10.5px;color:#AEBED6;letter-spacing:.3px}
+
+/* tabs */
+.tabs{display:flex;gap:6px;margin:22px 0 18px;flex-wrap:wrap}
+.tab{background:#fff;border:1px solid var(--line);border-radius:9px;padding:11px 20px;font-weight:700;font-size:14px;color:var(--navy2);cursor:pointer;transition:.15s;display:flex;align-items:center;gap:8px}
+.tab .dot{width:9px;height:9px;border-radius:50%;background:var(--orange)}
+.tab:hover{border-color:var(--navy2)}
+.tab.active{background:var(--navy);color:#fff;border-color:var(--navy)}
+.tab small{font-weight:500;opacity:.75;font-size:11px}
+
+/* cards */
+.cards{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:14px;margin-bottom:18px}
+.stat{background:#fff;border:1px solid var(--line);border-radius:12px;padding:16px 18px;box-shadow:0 2px 6px rgba(20,40,80,.05)}
+.stat .v{font-size:28px;font-weight:800;color:var(--navy);font-family:Cambria,Georgia,serif;line-height:1.05}
+.stat .l{font-size:11.5px;color:var(--mute);margin-top:5px;font-weight:600}
+.stat .x{font-size:10.5px;color:var(--mute);margin-top:2px}
+
+.panel{background:#fff;border:1px solid var(--line);border-radius:14px;padding:20px;box-shadow:0 2px 10px rgba(20,40,80,.05);margin-bottom:18px}
+.panel h2{font-size:18px;color:var(--navy);font-family:Cambria,Georgia,serif;margin-bottom:3px}
+.panel .ph-sub{font-size:12px;color:var(--mute);margin-bottom:14px}
+.controls{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.controls input,.controls select{padding:9px 12px;border:1px solid var(--line);border-radius:8px;font-size:13px;font-family:inherit;color:var(--ink);background:#fff}
+.controls input{min-width:230px}
+.hint{font-size:11.5px;color:var(--mute);margin-left:auto}
+
+/* table */
+.tbl-scroll{overflow-x:auto;border-radius:10px;border:1px solid var(--line)}
+table{border-collapse:collapse;width:100%;font-size:13px}
+thead th{background:var(--navy);color:#fff;font-weight:700;text-align:left;padding:11px 12px;white-space:nowrap;cursor:pointer;user-select:none;position:sticky;top:0;font-size:12px}
+thead th.num{text-align:center}
+thead th:hover{background:#1d375f}
+thead th .ar{opacity:.45;font-size:10px;margin-left:3px}
+tbody td{padding:9px 12px;border-top:1px solid var(--line);white-space:nowrap}
+tbody td.num{text-align:center;font-variant-numeric:tabular-nums}
+tbody tr:nth-child(even){background:var(--tint)}
+tbody tr.hl{background:#FBEEE4 !important;box-shadow:inset 3px 0 0 var(--orange)}
+tbody tr.hl td{font-weight:600}
+.rank{font-weight:800;color:var(--navy);font-family:Cambria,Georgia,serif}
+.nm{font-weight:600;color:var(--ink)}
+
+/* grade pill */
+.pill{display:inline-block;padding:3px 9px;border-radius:20px;color:#fff;font-size:10.5px;font-weight:700;white-space:nowrap}
+
+/* mini bar in cell */
+.barcell{display:flex;align-items:center;gap:8px;min-width:120px}
+.barcell .track{flex:1;height:8px;background:#EEF1F7;border-radius:5px;overflow:hidden;min-width:50px}
+.barcell .fill{height:100%;border-radius:5px}
+.barcell .pct{font-size:11.5px;font-weight:700;width:42px;text-align:right;font-variant-numeric:tabular-nums}
+
+/* domain card grid (UP scorecard) */
+.dom-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(180px,1fr));gap:13px;margin-bottom:20px}
+.dom{border:1px solid var(--line);border-radius:12px;padding:14px 16px;background:#fff}
+.dom .dn{font-size:13px;font-weight:700;color:var(--navy);min-height:34px}
+.dom .dp{font-size:24px;font-weight:800;font-family:Cambria,Georgia,serif;margin-top:6px}
+.dom .dm{font-size:11px;color:var(--mute)}
+.dom .track{height:7px;background:#EEF1F7;border-radius:5px;margin-top:9px;overflow:hidden}
+.dom .fill{height:100%;border-radius:5px}
+
+.legend{display:flex;gap:14px;flex-wrap:wrap;margin-top:12px;font-size:11.5px;color:var(--mute);align-items:center}
+.legend .it{display:flex;align-items:center;gap:5px}
+.legend .sw{width:12px;height:12px;border-radius:3px}
+.foot{font-size:11px;color:var(--mute);margin-top:14px;line-height:1.6}
+.hide{display:none}
+/* methodology */
+.steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:14px}
+.step{position:relative;background:var(--tint);border:1px solid var(--line);border-radius:12px;padding:16px 16px 16px 60px}
+.step .n{position:absolute;left:14px;top:14px;width:34px;height:34px;border-radius:50%;background:var(--navy);color:#fff;font-weight:800;font-family:Cambria,Georgia,serif;font-size:17px;display:flex;align-items:center;justify-content:center}
+.step.accent .n{background:var(--orange)}
+.step h3{font-size:14.5px;color:var(--navy);margin-bottom:5px;font-family:Cambria,Georgia,serif}
+.step p{font-size:12.5px;color:#3A475C;line-height:1.5}
+.step .eg{display:block;margin-top:8px;font-size:12px;color:var(--mute);font-style:italic;background:#fff;border:1px solid var(--line);border-radius:7px;padding:7px 9px}
+.cmp{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+@media(max-width:760px){.cmp{grid-template-columns:1fr}.band-wrap{grid-template-columns:1fr!important}}
+.cmp .col{border:1px solid var(--line);border-radius:12px;overflow:hidden}
+.cmp .col h3{background:var(--navy);color:#fff;font-size:14px;padding:11px 15px;font-family:Cambria,Georgia,serif;display:flex;justify-content:space-between;align-items:center}
+.cmp .col h3 span{font-size:11px;color:var(--orange);font-weight:700;letter-spacing:.5px}
+.cmp .col .kv{display:flex;justify-content:space-between;padding:9px 15px;border-top:1px solid var(--line);font-size:12.5px}
+.cmp .col .kv b{color:var(--navy)}
+.cmp .col .kv span{color:#3A475C;text-align:right;max-width:62%}
+.band-wrap{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.bandtbl{width:100%;border-collapse:collapse;font-size:12px}
+.bandtbl th{background:var(--navy2);color:#fff;text-align:left;padding:7px 10px;font-size:11.5px}
+.bandtbl td{padding:6px 10px;border-top:1px solid var(--line)}
+.bandtbl td:first-child{font-weight:700;color:#fff;white-space:nowrap}
+.bandtbl .rng{font-variant-numeric:tabular-nums;color:#3A475C;text-align:right}
+.bandtbl tr.up td{box-shadow:inset 3px 0 0 var(--orange);font-weight:700}
+.mex{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:13px;margin-top:4px}
+.mex .c{border:1px solid var(--line);border-radius:11px;padding:14px;background:#fff}
+.mex .c .t{font-weight:800;font-family:Cambria,Georgia,serif;font-size:15px}
+.mex .c .calc{font-size:12px;color:#3A475C;margin-top:7px;font-variant-numeric:tabular-nums;line-height:1.55}
+.mex .c .res{margin-top:9px;font-size:12.5px}
+.note{background:#FBEEE4;border:1px solid var(--orange);border-radius:10px;padding:12px 15px;font-size:12.5px;color:#5A3A24;line-height:1.55;margin-top:4px}
+.secrow td{background:#EDF1F8 !important;font-weight:800;color:var(--navy);font-family:Cambria,Georgia,serif;font-size:13px}
+.domrow td{background:#F7F9FC !important;font-weight:700;color:var(--navy2);font-size:12px}
+.domrow td .dw{float:right;color:var(--mute);font-weight:600}
+@media(max-width:640px){.h-main{font-size:22px}.h-stats{width:100%}}
+</style>
+</head>
+<body>
+<header>
+ <div class="head-inner">
+  <div>
+   <div class="h-title">Performance Grading Index · 2024-25</div>
+   <div class="h-main">Uttar Pradesh — PGI Rankings Dashboard</div>
+   <div class="h-sub">State PGI 2.0 (36 States/UTs) · UP indicator scorecard · PGI-D district rankings (75 districts)</div>
+  </div>
+  <div class="h-stats">
+   <div class="h-stat"><b>569.14</b><span>UP PGI 2.0</span></div>
+   <div class="h-stat"><b>Akanshi-1</b><span>State grade</span></div>
+   <div class="h-stat" id="hs-rank"><b>—</b><span>State position</span></div>
+   <div class="h-stat"><b>75</b><span>UP districts</span></div>
+  </div>
+ </div>
+</header>
+
+<div class="wrap">
+ <div class="tabs">
+  <button class="tab active" data-tab="state"><span class="dot"></span>State Rankings <small>PGI 2.0</small></button>
+  <button class="tab" data-tab="score"><span class="dot"></span>UP Scorecard <small>indicator-level</small></button>
+  <button class="tab" data-tab="dist"><span class="dot"></span>District Rankings <small>PGI-D</small></button>
+  <button class="tab" data-tab="method"><span class="dot"></span>Methodology <small>how scores work</small></button>
+  <button class="tab" data-tab="pgidfw"><span class="dot"></span>PGI-D Framework <small>district indicators</small></button>
+ </div>
+
+ <!-- STATE -->
+ <section id="tab-state">
+  <div class="cards" id="state-cards"></div>
+  <div class="panel">
+   <h2>State / UT Rankings — PGI 2.0</h2>
+   <div class="ph-sub">All 36 States &amp; UTs ranked by overall PGI 2.0 score (of 1000). PGI grades into bands; ranking by raw score is shown for comparison. Click any column to sort.</div>
+   <div class="controls">
+    <input type="text" id="state-search" placeholder="Search a State / UT…">
+    <select id="state-domain"><option value="-1">Rank by: Overall score</option></select>
+    <span class="hint">Uttar Pradesh highlighted</span>
+   </div>
+   <div class="tbl-scroll"><table id="state-tbl"></table></div>
+   <div class="legend" id="grade-legend-1"></div>
+   <div class="foot">Source: PGI 2.0 for States/UTs 2024-25 (DoSE&amp;L, Ministry of Education). Domains LO/A/I&amp;F/E/GP/TE&amp;T carry 240/80/190/260/130/100 points. The official index assigns grades, not ranks.</div>
+  </div>
+ </section>
+
+ <!-- SCORECARD -->
+ <section id="tab-score" class="hide">
+  <div class="dom-grid" id="dom-grid"></div>
+  <div class="panel">
+   <h2>Uttar Pradesh — Indicator-level Scorecard</h2>
+   <div class="ph-sub">All 101 PGI 2.0 sub-indicators: UP's achieved value, weight, points earned, and % of weight realised. Source-tagged per the official framework.</div>
+   <div class="controls">
+    <input type="text" id="ind-search" placeholder="Search an indicator…">
+    <select id="ind-domain"><option value="0">All domains</option></select>
+    <select id="ind-source"><option value="0">All data sources</option></select>
+    <span class="hint">% = points earned ÷ indicator weight</span>
+   </div>
+   <div class="tbl-scroll"><table id="ind-tbl"></table></div>
+   <div class="foot">Source: uploaded UP State PGI score sheet (indicator values &amp; points), aligned to PGI 2.0 framework. Total = 569.14 / 1000. For Equity gap indicators a higher %-of-weight reflects a smaller social-category gap (better performance).</div>
+  </div>
+ </section>
+
+ <!-- DISTRICT -->
+ <section id="tab-dist" class="hide">
+  <div class="cards" id="dist-cards"></div>
+  <div class="panel">
+   <h2>UP District Rankings — PGI-D</h2>
+   <div class="ph-sub">All 75 UP districts ranked by overall PGI-D score (of 600), with the six category scores. Click any column to sort.</div>
+   <div class="controls">
+    <input type="text" id="dist-search" placeholder="Search a district…">
+    <select id="dist-cat"><option value="-1">Rank by: Overall score</option></select>
+   </div>
+   <div class="tbl-scroll"><table id="dist-tbl"></table></div>
+   <div class="legend" id="grade-legend-2"></div>
+   <div class="foot">Source: PGI-D for Districts 2024-25 (DoSE&amp;L). Categories Outcomes/ECT/IF&amp;SE/SS&amp;CP/DL/GP carry 290/90/51/35/50/84 points.</div>
+  </div>
+ </section>
+
+ <!-- METHODOLOGY -->
+ <section id="tab-method" class="hide">
+  <div class="panel">
+   <h2>How every PGI score is built</h2>
+   <div class="ph-sub">The same three steps drive both the State index (PGI 2.0) and the District index (PGI-D) — only the totals, domains and band-setting differ.</div>
+   <div class="steps">
+    <div class="step"><div class="n">1</div><h3>Score each indicator</h3>
+     <p>Each indicator earns <b>proportionate value &times; its weight</b>. The optimum/benchmark for every indicator is fixed in advance.</p>
+     <span class="eg">e.g. Maths, Grade 3 (weight 30): if 50% of children are proficient &rarr; 30 &times; 0.50 = <b>15 points</b>.</span></div>
+    <div class="step"><div class="n">2</div><h3>Sum to domain &amp; total</h3>
+     <p>Indicator scores add up to <b>domain scores</b>; domains add up to the <b>overall total</b> — 1000 for States, 600 for Districts.</p>
+     <span class="eg">UP State: LO 81.4 + A 52.7 + I&amp;F 73.4 + E 231.2 + GP 68.6 + TE&amp;T 61.8 = <b>569.14</b>.</span></div>
+    <div class="step accent"><div class="n">3</div><h3>Place into a grade band</h3>
+     <p>The total is mapped to one of <b>10 grade bands</b>, from Utkarsh (top) to Akanshi-3 (lowest). Districts/States are graded, not ranked.</p>
+     <span class="eg">569.14 falls in 521&ndash;580 &rarr; grade <b>Akanshi-1</b>.</span></div>
+   </div>
+  </div>
+
+  <div class="panel">
+   <h2>State vs District: the two frameworks</h2>
+   <div class="ph-sub">Both share the scoring logic and the 10-grade ladder, but cover different units, points and indicator sets.</div>
+   <div class="cmp">
+    <div class="col">
+     <h3>State PGI 2.0 <span>STATES / UTs</span></h3>
+     <div class="kv"><b>Total points</b><span>1000</span></div>
+     <div class="kv"><b>Structure</b><span>2 categories &middot; 6 domains</span></div>
+     <div class="kv"><b>Indicators</b><span>70 headline (101 sub-indicators)</span></div>
+     <div class="kv"><b>Domains</b><span>LO 240 &middot; A 80 &middot; I&amp;F 190 &middot; E 260 &middot; GP 130 &middot; TE&amp;T 100</span></div>
+     <div class="kv"><b>Data sources</b><span>UDISE+, PARAKH RS 2024, PM-POSHAN, PRABANDH, Vidyanjali</span></div>
+     <div class="kv"><b>Band-setting</b><span>Range = 1000 &minus; lowest state score, split into 10 equal bands</span></div>
+    </div>
+    <div class="col">
+     <h3>District PGI-D <span>DISTRICTS</span></h3>
+     <div class="kv"><b>Total points</b><span>600</span></div>
+     <div class="kv"><b>Structure</b><span>6 categories &middot; 11 domains</span></div>
+     <div class="kv"><b>Indicators</b><span>70</span></div>
+     <div class="kv"><b>Categories</b><span>Out. 290 &middot; ECT 90 &middot; IF&amp;SE 51 &middot; SS&amp;CP 35 &middot; DL 50 &middot; GP 84</span></div>
+     <div class="kv"><b>Data sources</b><span>UDISE+, PARAKH RS 2024 / NAS, PRABANDH</span></div>
+     <div class="kv"><b>Band-setting</b><span>Fixed widths of 10% of 600 points per band</span></div>
+    </div>
+   </div>
+  </div>
+
+  <div class="panel">
+   <h2>The 10 grade bands</h2>
+   <div class="ph-sub">Same nomenclature for both indices; the score ranges differ because the totals (1000 vs 600) and band-setting rules differ.</div>
+   <div class="band-wrap">
+    <div>
+     <div style="font-weight:700;color:var(--navy);font-family:Cambria,Georgia,serif;margin-bottom:7px">State PGI 2.0 &mdash; score of 1000</div>
+     <table class="bandtbl">
+      <tr><th>Grade</th><th>Grade range</th><th class="rng">Score range</th></tr>
+      <tr><td style="background:#2E8B57">Utkarsh</td><td>91&ndash;100%</td><td class="rng">941&ndash;1000</td></tr>
+      <tr><td style="background:#2E8B57">Uttam-1</td><td>81&ndash;90%</td><td class="rng">881&ndash;940</td></tr>
+      <tr><td style="background:#2E8B57">Uttam-2</td><td>71&ndash;80%</td><td class="rng">821&ndash;880</td></tr>
+      <tr><td style="background:#3A9B6E">Uttam-3</td><td>61&ndash;70%</td><td class="rng">761&ndash;820</td></tr>
+      <tr><td style="background:#C99A2E">Prachesta-1</td><td>51&ndash;60%</td><td class="rng">701&ndash;760</td></tr>
+      <tr><td style="background:#E0712E">Prachesta-2</td><td>41&ndash;50%</td><td class="rng">641&ndash;700</td></tr>
+      <tr><td style="background:#D2691E">Prachesta-3</td><td>31&ndash;40%</td><td class="rng">581&ndash;640</td></tr>
+      <tr class="up"><td style="background:#C0392B">Akanshi-1</td><td>21&ndash;30% &nbsp;&larr; UP (569.14)</td><td class="rng">521&ndash;580</td></tr>
+      <tr><td style="background:#C0392B">Akanshi-2</td><td>11&ndash;20%</td><td class="rng">461&ndash;520</td></tr>
+      <tr><td style="background:#C0392B">Akanshi-3</td><td>up to 10%</td><td class="rng">401&ndash;460</td></tr>
+     </table>
+    </div>
+    <div>
+     <div style="font-weight:700;color:var(--navy);font-family:Cambria,Georgia,serif;margin-bottom:7px">District PGI-D &mdash; score of 600</div>
+     <table class="bandtbl">
+      <tr><th>Grade</th><th>Grade range</th><th class="rng">Score range</th></tr>
+      <tr><td style="background:#2E8B57">Utkarsh</td><td>above 90%</td><td class="rng">540&ndash;600</td></tr>
+      <tr><td style="background:#2E8B57">Uttam-1</td><td>81&ndash;90%</td><td class="rng">486&ndash;540</td></tr>
+      <tr><td style="background:#2E8B57">Uttam-2</td><td>71&ndash;80%</td><td class="rng">426&ndash;480</td></tr>
+      <tr><td style="background:#3A9B6E">Uttam-3</td><td>61&ndash;70%</td><td class="rng">366&ndash;420</td></tr>
+      <tr><td style="background:#C99A2E">Prachesta-1</td><td>51&ndash;60%</td><td class="rng">306&ndash;360</td></tr>
+      <tr><td style="background:#E0712E">Prachesta-2</td><td>41&ndash;50%</td><td class="rng">246&ndash;300</td></tr>
+      <tr><td style="background:#D2691E">Prachesta-3</td><td>31&ndash;40%</td><td class="rng">186&ndash;240</td></tr>
+      <tr><td style="background:#C0392B">Akanshi-1</td><td>21&ndash;30%</td><td class="rng">126&ndash;180</td></tr>
+      <tr><td style="background:#C0392B">Akanshi-2</td><td>11&ndash;20%</td><td class="rng">66&ndash;120</td></tr>
+      <tr><td style="background:#C0392B">Akanshi-3</td><td>up to 10%</td><td class="rng">0&ndash;60</td></tr>
+     </table>
+     <div style="font-size:11px;color:var(--mute);margin-top:8px">All 75 UP districts currently fall in Prachesta-1 to Prachesta-3 (239&ndash;311 of 600).</div>
+    </div>
+   </div>
+  </div>
+
+  <div class="panel">
+   <h2>Worked examples</h2>
+   <div class="ph-sub">Tracing the arithmetic end-to-end for the State and three contrasting districts.</div>
+   <div style="font-weight:700;color:var(--navy);font-family:Cambria,Georgia,serif;margin:4px 0 8px">State &mdash; Uttar Pradesh</div>
+   <div class="note" style="background:#EEF2F8;border-color:var(--line);color:#1A2238">
+     <b>Add the six domain scores:</b> 81.4 (Learning Outcomes) + 52.7 (Access) + 73.4 (Infrastructure) + 231.2 (Equity) + 68.6 (Governance) + 61.8 (Teacher Edu.) = <b style="color:var(--orange)">569.14 / 1000</b>.
+     &nbsp;The State bands place 521&ndash;580 in <b>Akanshi-1</b>. UP sits 11 points below the Prachesta-3 threshold (581) — closing the Learning-Outcomes gap is the fastest route to the next band.
+   </div>
+   <div style="font-weight:700;color:var(--navy);font-family:Cambria,Georgia,serif;margin:16px 0 8px">Districts &mdash; three contrasting cases</div>
+   <div class="mex">
+    <div class="c"><div class="t" style="color:#2E8B57">Varanasi &middot; top</div>
+     <div class="calc">158 + 48 + 27 + 13 + 19 + 46 = <b>311</b><br>311 / 600 = <b>51.8%</b></div>
+     <div class="res">&rarr; <span class="pill" style="background:#C99A2E">Prachesta-1</span></div></div>
+    <div class="c"><div class="t" style="color:#E0712E">Sitapur &middot; mid</div>
+     <div class="calc">119 + 52 + 26 + 12 + 8 + 41 = <b>258</b><br>258 / 600 = <b>43.0%</b></div>
+     <div class="res">&rarr; <span class="pill" style="background:#E0712E">Prachesta-2</span></div></div>
+    <div class="c"><div class="t" style="color:#C0392B">Bahraich &middot; lowest</div>
+     <div class="calc">105 + 52 + 25 + 12 + 8 + 37 = <b>239</b><br>239 / 600 = <b>39.8%</b></div>
+     <div class="res">&rarr; <span class="pill" style="background:#D2691E">Prachesta-3</span></div></div>
+   </div>
+   <div class="note" style="margin-top:16px"><b>Note on reverse-scored indicators.</b> A few indicators score in reverse — for example, teachers assigned non-teaching duties: a district with fewer such assignments earns more points. Likewise, Equity "gap" indicators reward a <i>smaller</i> gap between social categories. The dashboard's "% of weight" already reflects these direction conventions.</div>
+   <div class="foot">Sources: PGI 2.0 for States/UTs and PGI-D for Districts 2024-25 (DoSE&amp;L, Ministry of Education). Band-setting per Tables 3.1&ndash;3.2 of the State brochure and Section 3 of the PGI-D report.</div>
+  </div>
+ </section>
+
+ <!-- PGI-D FRAMEWORK -->
+ <section id="tab-pgidfw" class="hide">
+  <div class="cards" id="fw-cards"></div>
+  <div class="panel">
+   <h2>PGI-D Indicator Framework</h2>
+   <div class="ph-sub">All 70 district indicators (600 points), grouped under 6 categories and 11 domains, with each indicator's weight and data source. This is the indicator composition the district scores are built from — values are published only at category level, shown in the District Rankings tab.</div>
+   <div class="controls">
+    <input type="text" id="fw-search" placeholder="Search an indicator…">
+    <select id="fw-cat"><option value="0">All categories</option></select>
+    <select id="fw-source"><option value="0">All data sources</option></select>
+    <span class="hint">Weights sum to 600 points</span>
+   </div>
+   <div class="tbl-scroll"><table id="fw-tbl"></table></div>
+   <div class="legend">
+    <span style="font-weight:700;color:var(--ink)">Data sources:</span>
+    <span class="it"><span class="sw" style="background:var(--navy2)"></span>UDISE+ — school-reported facilities, access, governance, digital</span>
+    <span class="it"><span class="sw" style="background:var(--green)"></span>RPS / NAS — learning outcomes (Grades 3, 6, 9)</span>
+    <span class="it"><span class="sw" style="background:var(--orange)"></span>PRABANDH — out-of-school children</span>
+   </div>
+   <div class="foot">Source: PGI-D for Districts 2024-25 (DoSE&amp;L), Annexure-2. A few indicators are reverse-scored (e.g. teachers on non-teaching duties — fewer is better).</div>
+  </div>
+ </section>
+</div>
+
+<script>const DATA={"stateDomains": [["Learning Outcomes & Quality", "LO", 240], ["Access", "A", 80], ["Infrastructure & Facilities", "I&F", 190], ["Equity", "E", 260], ["Governance Processes", "GP", 130], ["Teacher Edu. & Training", "TE&T", 100]], "states": [["Andaman & Nicobar Islands", 604.5, "Prachesta-3", [82.4, 69.2, 116.2, 220.3, 43.2, 73.2]], ["Andhra Pradesh", 578.1, "Akanshi-1", [68.6, 69.8, 99.9, 226.9, 48.2, 64.7]], ["Arunachal Pradesh", 527.0, "Akanshi-1", [79.6, 43.7, 65.6, 217.1, 58.0, 63.0]], ["Assam", 593.6, "Prachesta-3", [79.4, 55.4, 92.0, 227.7, 85.3, 53.8]], ["Bihar", 507.0, "Akanshi-2", [81.9, 48.3, 58.0, 214.4, 40.0, 64.4]], ["Chandigarh", 739.1, "Prachesta-1", [110.6, 72.5, 147.5, 239.8, 83.2, 85.5]], ["Chhattisgarh", 570.7, "Akanshi-1", [72.9, 57.6, 84.5, 217.4, 74.9, 63.4]], ["DNH&DD", 683.2, "Prachesta-2", [100.0, 66.1, 127.6, 233.5, 76.6, 79.4]], ["Delhi", 675.5, "Prachesta-2", [94.5, 66.3, 123.0, 245.0, 62.3, 84.4]], ["Goa", 613.2, "Prachesta-3", [85.8, 67.3, 102.6, 224.1, 57.5, 75.9]], ["Gujarat", 582.9, "Prachesta-3", [58.5, 62.4, 81.4, 228.0, 78.4, 74.2]], ["Haryana", 587.1, "Prachesta-3", [79.9, 66.3, 98.9, 226.2, 47.1, 68.7]], ["Himachal Pradesh", 659.2, "Prachesta-2", [117.9, 69.3, 110.5, 235.3, 45.9, 80.3]], ["Jammu & Kashmir", 500.2, "Akanshi-2", [62.3, 54.3, 70.3, 210.0, 45.8, 57.5]], ["Jharkhand", 531.1, "Akanshi-1", [69.3, 58.7, 85.3, 215.4, 37.0, 65.4]], ["Karnataka", 558.1, "Akanshi-1", [72.7, 65.8, 85.0, 218.8, 41.8, 74.0]], ["Kerala", 687.7, "Prachesta-2", [140.3, 75.3, 110.3, 223.2, 52.8, 85.8]], ["Ladakh", 549.1, "Akanshi-1", [81.5, 52.7, 90.7, 218.3, 45.5, 60.4]], ["Lakshadweep", 587.7, "Prachesta-3", [59.4, 63.6, 120.4, 216.6, 45.0, 82.7]], ["Madhya Pradesh", 574.1, "Akanshi-1", [84.9, 54.3, 76.3, 224.1, 74.4, 60.1]], ["Maharashtra", 649.8, "Prachesta-2", [102.8, 67.5, 92.1, 232.9, 81.7, 72.8]], ["Manipur", 557.0, "Akanshi-1", [89.7, 55.0, 75.7, 219.0, 59.4, 58.2]], ["Meghalaya", 448.0, "Akanshi-3", [47.2, 42.8, 62.1, 208.7, 40.5, 46.7]], ["Mizoram", 507.9, "Akanshi-2", [56.5, 50.8, 72.9, 210.7, 56.7, 60.3]], ["Nagaland", 536.6, "Akanshi-1", [68.1, 48.6, 77.3, 216.7, 70.4, 55.5]], ["Odisha", 655.2, "Prachesta-2", [99.3, 66.3, 108.6, 228.0, 79.6, 73.4]], ["Puducherry", 575.0, "Akanshi-1", [53.7, 72.8, 103.2, 221.6, 46.6, 77.1]], ["Punjab", 709.1, "Prachesta-1", [150.4, 67.9, 112.5, 230.6, 79.1, 68.6]], ["Rajasthan", 578.6, "Akanshi-1", [107.5, 56.6, 78.2, 223.1, 45.3, 67.9]], ["Sikkim", 603.3, "Prachesta-3", [77.8, 55.3, 112.3, 222.9, 71.8, 63.2]], ["Tamil Nadu", 582.4, "Prachesta-3", [55.1, 72.2, 108.9, 231.0, 38.9, 76.3]], ["Telangana", 552.2, "Akanshi-1", [69.0, 66.9, 85.9, 218.7, 44.8, 66.9]], ["Tripura", 559.0, "Akanshi-1", [70.0, 62.0, 81.2, 221.1, 64.3, 60.4]], ["Uttar Pradesh", 569.1, "Akanshi-1", [81.4, 52.7, 73.4, 231.2, 68.6, 61.8]], ["Uttarakhand", 584.5, "Prachesta-3", [67.4, 64.7, 84.9, 222.2, 78.5, 66.8]], ["West Bengal", 557.1, "Akanshi-1", [83.5, 55.6, 86.2, 223.2, 36.7, 71.9]]], "indicators": [["1.1", "Learning Outcome in Language in Class 3 -All Schools", "30", "69.6", "20.9", "PARAKH"], ["1.2", "Learning Outcome in Mathematics in Class 3 -All Schools", "30", "62.38", "18.7", "PARAKH"], ["1.3", "Learning Outcome in Language in Class 6 -All Schools", "30", "33.39", "10", "PARAKH"], ["1.4", "Learning Outcome in Mathematics in Class 6 -All Schools", "25", "31.34", "7.8", "PARAKH"], ["1.5", "Learning Outcome in TWAU (The World Around Us) in Class 6 - All Schools", "25", "37.95", "9.5", "PARAKH"], ["1.6", "Learning Outcome in Language in Class 9 -All Schools", "25", "19.87", "5", "PARAKH"], ["1.7", "Learning Outcome in Mathematics in Class 9 -All Schools", "25", "9.21", "2.3", "PARAKH"], ["1.8", "Learning Outcome in Science in Class 9 - All Schools", "25", "9.45", "2.4", "PARAKH"], ["1.9", "Learning Outcome in Social Science in Class 9 - All Schools", "25", "19.19", "4.8", "PARAKH"], ["2.1", "Adjusted NER at Secondary level (All Schools)", "10", "38.6", "3.9", "UDISE+"], ["2.2", "NER at Higher Secondary level (11-12) (All Schools)", "10", "31.1", "3.1", "UDISE+"], ["2.3", "Retention rate at primary level ( all schools)", "10", "86.9", "8.7", "UDISE+"], ["2.4", "Retention rate at Upper primary level ( all schools)", "10", "70.4", "7", "UDISE+"], ["2.5", "Retention rate at secondary level ( all schools)", "10", "49.6", "5", "UDISE+"], ["2.6a", "Completion Rate - Secondary", "10", "85.95", "8.6", "UDISE+"], ["2.6b", "Completion Rate - Higher Secondary", "10", "109.02", "10", "UDISE+"], ["2.7", "Participation Rate in organized learning (One year before the official primary entry age)", "10", "64.35", "6.4", "UDISE+"], ["3.1a", "Percentage of schools having ICT lab- All Government and Government Aided Schools having classes Upper Primary and above", "10", "4.57", "0.5", "UDISE+"], ["3.1b", "Percentage of schools having Smart Classes - All Schools", "10", "12.85", "1.3", "UDISE+"], ["3.2a", "Percentage of schools having integrated Science lab facility upto Secondary level", "5", "50.09", "2.5", "UDISE+"], ["3.2b", "Percentage of schools having separate science lab facility for higher Secondary level", "5", "64.56", "3.2", "UDISE+"], ["3.2c", "Percentage of schools having separate rooms for Co-Curricular activities/Arts and Crafts - All Schools having Secondary and Higher Secondary level", "5", "43.66", "2.2", "UDISE+"], ["3.3a", "Percentage of schools having Library/Book Bank/Reading Corner - All Schools", "5", "81.64", "4.1", "UDISE+"], ["3.3b", "Percentage of schools having separate room for library - All Schools", "5", "29.04", "1.5", "UDISE+"], ["3.4a", "Percentage of schools offering pre-vocational exposure at Upper Primary level", "5", "7.55", "0.4", "UDISE+"], ["3.4b", "Percentage of Schools offering any vocational course under NSQF at Secondary and Higher Secondary level- Govt and Govt Aided Schools", "10", "4.46", "0.4", "UDISE+"], ["3.5a", "Percentage of students got placed after receiving vocational Education - Class 10", "5", "0.56", "0.03", "UDISE+"], ["3.5b", "Percentage of students who got placed after receiving vocational Education - Class 12", "5", "0", "0", "UDISE+"], ["3.5c", "Percentage of students self employed after receiving vocational Education - Class 10", "5", "0.28", "0.01", "UDISE+"], ["3.5d", "Percentage of students self employed after receiving vocational Education - Class 12", "5", "0", "0", "UDISE+"], ["3.6", "Percentage of days midday meal served to children upto elementary level against total working days - Govt and aided elementary schools", "10", "100", "10", "PM-POSHAN"], ["3.7", "Percentage of Districts carried out social audit of PM-POSHAN Scheme - Government and Aided Schools", "10", "44", "4.4", "PM-POSHAN"], ["3.8", "Percentage of schools carried out health check-up of all students during the last academic year", "10", "62.24", "6.2", "UDISE+"], ["3.9a", "Percentage of Co-ed and girls schools having Sanitary Pad vending Machine - For schools having Secondary and Higher Secondary Sections", "10", "23.34", "2.3", "UDISE+"], ["3.9b", "Percentage of Co-ed and girls schools having functional incinerator in girls toilets - For schools having Secondary and Higher Secondary Sections", "10", "50.73", "5.1", "UDISE+"], ["3.1", "Percentage of Elementary Level students getting Free Textbook within one month of start of academic year - For Government and Aided Schools", "10", "93.02", "9.3", "UDISE+"], ["3.11", "Percentage of schools where Balavatika is started in the Co- located Anganwadi/school- Government and Government Aided Schools", "10", "50.5", "5", "UDISE+"], ["3.12", "Percentage of schools having Kitchen Garden - All Schools", "10", "22.3", "2.2", "UDISE+"], ["3.13", "Percentage of schools having functional Rain water harvesting facility - All Schools", "10", "17.96", "1.8", "UDISE+"], ["3.14", "Percentage of schools having functional drinking water facility - All Schools", "10", "99.38", "9.9", "UDISE+"], ["3.15", "Percentage of schools having functional solar panel - All Schools", "10", "11.21", "1.1", "UDISE+"], ["4.1a", "Difference in student performance in Language between Scheduled Castes (SC) and General category in All Schools: Class 3", "5", "0.57", "5", "PARAKH"], ["4.1b", "Difference in student performance in Language between Scheduled Castes (SC) and General category in All Schools: Class 6", "5", "8.67", "4.6", "PARAKH"], ["4.1c", "Difference in student performance in Language between Scheduled Castes (SC) and General category in All Schools: Class 9", "5", "15.79", "4.2", "PARAKH"], ["4.2a", "Difference in student performance in Mathematics between Scheduled Castes (SC) and General category in All Schools: Class 3", "5", "3.35", "4.8", "PARAKH"], ["4.2b", "Difference in student performance in Mathematics between Scheduled Castes (SC) and General category in All Schools: Class 6", "5", "4.74", "4.8", "PARAKH"], ["4.2c", "Difference in student performance in Mathematics between Scheduled Castes (SC) and General category in All Schools: Class 9", "5", "6.22", "4.7", "PARAKH"], ["4.3a", "Difference in student performance in Language between Scheduled Tribes (ST) and General category in All Schools: Class 3", "5", "4.64", "4.8", "PARAKH"], ["4.3b", "Difference in student performance in Language between Scheduled Tribes (ST) and General category in All Schools: Class 6", "5", "15.54", "4.2", "PARAKH"], ["4.3c", "Difference in student performance in Language between Scheduled Tribes (ST) and General category in All Schools: Class 9", "5", "17.29", "4.1", "PARAKH"], ["4.4a", "Difference in student performance in Mathematics between Scheduled Tribes (ST) and General category in All Schools: Class 3", "5", "1.97", "4.9", "PARAKH"], ["4.4b", "Difference in student performance in Mathematics between Scheduled Tribes (ST) and General category in All Schools: Class 6", "5", "13.71", "4.3", "PARAKH"], ["4.4c", "Difference in student performance in Mathematics between Scheduled Tribes (ST) and General category in All Schools: Class 9", "5", "7.57", "4.6", "PARAKH"], ["4.5a", "Difference in student performance in Language between Urban and Rural areas in All Schools : Class 3", "10", "7.63", "9.2", "PARAKH"], ["4.5b", "Difference in student performance in Language between Urban and Rural areas in All Schools : Class 6", "5", "2.24", "4.9", "PARAKH"], ["4.5c", "Difference in student performance in Language between Urban and Rural areas in All Schools : Class 9", "5", "8.95", "4.6", "PARAKH"], ["4.6a", "Difference in student performance in Mathematics between Urban and Rural areas in All Schools : Class 3", "10", "9.54", "9", "PARAKH"], ["4.6b", "Difference in student performance in Mathematics between Urban and Rural areas in All Schools : Class 6", "5", "4.09", "4.8", "PARAKH"], ["4.6c", "Difference in student performance in Mathematics between Urban and Rural areas in All Schools : Class 9", "5", "1.85", "4.9", "PARAKH"], ["4.7a", "Difference in student performance in Language between Boys and Girls in All Schools: Class 3", "10", "2.49", "9.8", "PARAKH"], ["4.7b", "Difference in student performance in Language between Boys and Girls in All Schools: Class 6", "10", "3.63", "9.6", "PARAKH"], ["4.7c", "Difference in student performance in Language between Boys and Girls in All Schools: Class 9", "10", "0.84", "10", "PARAKH"], ["4.8a", "Difference in student performance in Mathematics between Boys and Girls in All Schools: Class 3", "10", "0.58", "10", "PARAKH"], ["4.8b", "Difference in student performance in Mathematics between Boys and Girls in All Schools: Class 6", "10", "1.73", "9.8", "PARAKH"], ["4.8c", "Difference in student performance in Mathematics between Boys and Girls in All Schools: Class 9", "10", "2.68", "9.7", "PARAKH"], ["4.9a", "Difference between SC's and General Category's Performance in Examination Result - Class 10", "5", "4.22", "4.8", "UDISE+"], ["4.9b", "Difference between ST's and General Category's Performance in Examination Result - Class 10", "5", "1.06", "4.9", "UDISE+"], ["4.9c", "Difference between SC's and General Category's Performance in Examination Result - Class 12", "5", "2.74", "4.9", "UDISE+"], ["4.9d", "Difference between ST's and General Category's Performance in Examination Result - Class 12", "5", "3.35", "4.8", "UDISE+"], ["4.1", "Difference between boys and girls Transition Rate from Upper Primary to Secondary level", "10", "1", "9.9", "UDISE+"], ["4.11", "Difference between Minorities and General Category Transition Rate from Upper Primary to Secondary level", "10", "6.2", "9.4", "UDISE+"], ["4.12", "Percentage of schools having assistive tech-based solutions for CWSN - All Schools", "10", "9.2", "0.9", "UDISE+"], ["4.13", "Percentage of entitled CWSN receiving Aids and Appliances for Government and Aided shools", "10", "100", "10", "UDISE+"], ["4.14", "Percentage of schools having ramp for CWSN to access school building", "10", "71.2", "7.1", "UDISE+"], ["4.15", "Percentage of schools having functional CWSN friendly toilets", "10", "43.43", "4.3", "UDISE+"], ["4.16a", "Percentage of Co-Ed and Boys schools having functional toilet - Boys toilet", "10", "94.54", "9.5", "UDISE+"], ["4.16b", "Percentage of Co-Ed and Girls schools having functional toilet - Girls toilet", "10", "93.97", "9.4", "UDISE+"], ["5.1", "Percentage Of Students with Aadhaar seeded information- All Schools", "5", "86.66", "4.3", "UDISE+"], ["5.2", "Percentage of schools having system to capture students attendance digitally - For Government and Aided schools", "5", "28.1", "1.4", "UDISE+"], ["5.3", "Percentage of schools having system to capture teachers attendance digitally - For Government and Aided schools", "5", "26.59", "1.3", "UDISE+"], ["5.4", "Percentage of Anganwadi Center(s) co-located in the school Premises - Government and Government Aided Schools", "10", "38.05", "3.8", "UDISE+"], ["5.5", "Percentage of schools having PTR as per RTE norm at primary level", "10", "77.51", "7.8", "UDISE+"], ["5.6a", "Percentage of primary schools meeting head-teacher norms as per RTE", "5", "73.61", "3.7", "UDISE+"], ["5.6b", "Percentage of schools meeting head-teacher norms for Upper Primary level as per RTE", "5", "59.92", "3", "UDISE+"], ["5.7", "Percentage of Secondary Schools having having Principals/Head masters in position", "10", "90.13", "9", "UDISE+"], ["5.8", "Average no of days taken by States/UTs to release Central share of fund on Elementary education/Secondary education/Teacher\ufffds education - Recurring", "10", "18", "10", "PRABANDH"], ["5.9", "Average no of days taken by States/UTs to release Central share of fund on Elementary education/Secondary education/Teacher\ufffds education- non-Recurring", "10", "21.67", "10", "PRABANDH"], ["5.1", "Percentage of children receiving orientation on cyber safety to students - All Schools", "10", "5.31", "0.5", "UDISE+"], ["5.11", "Percentage of schools having internet used for pedagogical purposes - All Schools", "10", "34.84", "3.5", "UDISE+"], ["5.12", "Average no of days taken by States/UTs to release State share of fund on Elementary education/Secondary education/Teacher\ufffds education", "10", "41.49", "0", "PRABANDH"], ["5.13", "Percentage of Out of School Children (OoSC) identified as per PRABANDH Portal", "10", "5.1", "0.5", "PRABANDH"], ["5.14", "Percentage of OoSC mainstreamed as per PRABANDH Portal", "10", "97.75", "9.8", "PRABANDH"], ["5.15", "Percentage of schools who have received assistance through Vidyanjali Portal - Government and Aided Schools", "5", "0.01", "0", "Vidyanjali Portal"], ["6.1", "Percentage of schools having trained teachers for teaching CWSN", "10", "20.17", "2", "UDISE+"], ["6.2", "Percentage of schools where teachers are providing career councelling and guidance to children - secondary and higher secondary Government Schools", "10", "0.82", "0.1", "UDISE+"], ["6.3", "Percentage of teachers whose Aadhar/Unique ID is seeded in electronic database - Government and Government Aided Schools", "5", "99.21", "5", "UDISE+"], ["6.4", "Proportion of teachers with minimal professional qualifications - Pre-Primary", "15", "29.86", "4.5", "UDISE+"], ["6.5", "Proportion of teachers with minimal professional qualifications - Primary", "15", "82.42", "12.4", "UDISE+"], ["6.6", "Proportion of teachers with minimal professional qualifications - Upper Primary", "15", "83.24", "12.5", "UDISE+"], ["6.7", "Proportion of teachers with minimal professional qualifications - Secondary", "15", "84.78", "12.7", "UDISE+"], ["6.8", "Proportion of teachers with minimal professional qualifications - Higher Secondary", "15", "84.07", "12.6", "UDISE+"]], "indDomains": {"1": ["Learning Outcomes & Quality", 240, "PARAKH"], "2": ["Access", 80, "UDISE+"], "3": ["Infrastructure & Facilities", 190, "UDISE+ / PM-POSHAN"], "4": ["Equity", 260, "PARAKH / UDISE+"], "5": ["Governance Processes", 130, "UDISE+ / PRABANDH / Vidyanjali"], "6": ["Teacher Edu. & Training", 100, "UDISE+"]}, "distCats": [["Outcomes", "Out.", 290], ["Effective Classroom Transaction", "ECT", 90], ["Infrastructure, Facilities & Entitlements", "IF&SE", 51], ["School Safety & Child Protection", "SS&CP", 35], ["Digital Learning", "DL", 50], ["Governance Processes", "GP", 84]], "districts": [["Varanasi", "Prachesta-1", 311, [158, 48, 27, 13, 19, 46]], ["Kanpur Nagar", "Prachesta-1", 309, [162, 49, 24, 11, 14, 48]], ["Gautam Buddha Nagar", "Prachesta-1", 304, [138, 50, 27, 16, 24, 50]], ["Ghaziabad", "Prachesta-1", 300, [144, 45, 25, 14, 24, 48]], ["Jhansi", "Prachesta-2", 300, [124, 64, 28, 24, 17, 41]], ["Shamli", "Prachesta-2", 296, [149, 51, 27, 12, 14, 43]], ["Prayagraj", "Prachesta-2", 291, [147, 47, 27, 13, 11, 46]], ["Lucknow", "Prachesta-2", 290, [136, 47, 27, 13, 17, 48]], ["Mahoba", "Prachesta-2", 290, [138, 52, 27, 16, 11, 45]], ["Baghpat", "Prachesta-2", 288, [136, 51, 27, 15, 15, 45]], ["Bulandshahr", "Prachesta-2", 287, [134, 51, 27, 12, 16, 47]], ["Faizabad", "Prachesta-2", 287, [149, 47, 22, 11, 12, 47]], ["Firozabad", "Prachesta-2", 285, [134, 49, 28, 15, 13, 46]], ["Bhadoi", "Prachesta-2", 285, [130, 54, 27, 17, 12, 45]], ["Hapur", "Prachesta-2", 284, [140, 44, 24, 10, 13, 52]], ["Jaunpur", "Prachesta-2", 283, [146, 45, 25, 12, 10, 46]], ["Sant Kabir Nagar", "Prachesta-2", 283, [149, 46, 23, 11, 8, 45]], ["Etawah", "Prachesta-2", 282, [141, 48, 25, 12, 9, 47]], ["Fatehpur", "Prachesta-2", 282, [141, 50, 26, 12, 8, 44]], ["Aligarh", "Prachesta-2", 282, [148, 45, 24, 10, 10, 47]], ["Kanshiram Nagar", "Prachesta-2", 281, [142, 49, 25, 11, 13, 42]], ["Ghazipur", "Prachesta-2", 281, [132, 50, 26, 16, 12, 45]], ["Gorakhpur", "Prachesta-2", 281, [136, 50, 23, 19, 11, 43]], ["Mirzapur", "Prachesta-2", 280, [130, 52, 26, 19, 11, 42]], ["Mainpuri", "Prachesta-2", 280, [139, 50, 23, 11, 11, 45]], ["Shrawasti", "Prachesta-2", 277, [127, 56, 27, 20, 11, 36]], ["Sonbhadra", "Prachesta-2", 276, [130, 50, 28, 14, 10, 45]], ["Chandauli", "Prachesta-2", 275, [132, 50, 24, 14, 12, 44]], ["Barabanki", "Prachesta-2", 275, [127, 52, 27, 13, 13, 41]], ["Deoria", "Prachesta-2", 275, [137, 45, 25, 11, 9, 48]], ["Sultanpur", "Prachesta-2", 275, [125, 52, 27, 14, 9, 48]], ["Pratapgarh", "Prachesta-2", 274, [142, 46, 23, 11, 6, 47]], ["Etah", "Prachesta-2", 274, [133, 45, 25, 11, 9, 51]], ["Muzaffarnagar", "Prachesta-2", 274, [129, 49, 25, 14, 11, 45]], ["Ambedkar Nagar", "Prachesta-2", 273, [132, 48, 25, 13, 9, 47]], ["Auraiya", "Prachesta-2", 272, [137, 44, 24, 11, 9, 47]], ["Bijnor", "Prachesta-2", 272, [131, 50, 25, 12, 10, 44]], ["Farrukhabad", "Prachesta-2", 271, [131, 49, 23, 11, 12, 46]], ["Amethi", "Prachesta-2", 271, [128, 48, 26, 12, 10, 46]], ["Bareilly", "Prachesta-2", 270, [126, 50, 25, 12, 16, 43]], ["Hamirpur", "Prachesta-2", 270, [122, 53, 27, 15, 8, 45]], ["Jalaun", "Prachesta-2", 270, [135, 45, 25, 10, 9, 47]], ["Meerut", "Prachesta-2", 269, [126, 45, 24, 11, 16, 47]], ["Chitrakoot", "Prachesta-2", 269, [118, 52, 26, 15, 10, 48]], ["Mathura", "Prachesta-2", 267, [127, 45, 24, 11, 13, 48]], ["Unnao", "Prachesta-2", 267, [129, 49, 25, 11, 8, 45]], ["Agra", "Prachesta-2", 267, [120, 51, 20, 13, 15, 47]], ["Rae Bareli", "Prachesta-2", 266, [128, 48, 26, 13, 9, 44]], ["Mau", "Prachesta-2", 266, [133, 41, 24, 10, 10, 49]], ["Hathras", "Prachesta-2", 266, [124, 49, 26, 12, 10, 46]], ["Moradabad", "Prachesta-2", 266, [125, 48, 22, 12, 13, 45]], ["Saharanpur", "Prachesta-2", 265, [126, 46, 26, 11, 11, 44]], ["Basti", "Prachesta-2", 265, [128, 47, 25, 12, 7, 47]], ["Banda", "Prachesta-2", 265, [119, 51, 27, 15, 9, 44]], ["Ballia", "Prachesta-2", 263, [130, 42, 24, 10, 8, 49]], ["Rampur", "Prachesta-2", 262, [126, 47, 25, 11, 11, 43]], ["Kanpur Dehat", "Prachesta-2", 262, [133, 47, 18, 11, 8, 43]], ["Kaushambi", "Prachesta-2", 261, [123, 48, 25, 11, 9, 45]], ["Kushinagar", "Prachesta-2", 260, [119, 49, 24, 11, 8, 49]], ["Azamgarh", "Prachesta-2", 260, [124, 45, 23, 11, 11, 46]], ["Sitapur", "Prachesta-2", 258, [119, 52, 26, 12, 8, 41]], ["Kheri", "Prachesta-2", 258, [114, 52, 28, 15, 10, 39]], ["Balrampur", "Prachesta-2", 257, [125, 46, 25, 11, 8, 43]], ["Hardoi", "Prachesta-2", 257, [119, 53, 26, 14, 9, 36]], ["Sambhal", "Prachesta-2", 257, [121, 47, 24, 11, 9, 45]], ["Gonda", "Prachesta-2", 254, [116, 51, 25, 13, 8, 42]], ["Amroha", "Prachesta-2", 254, [123, 45, 23, 10, 9, 45]], ["Lalitpur", "Prachesta-2", 250, [114, 47, 25, 15, 10, 39]], ["Budaun", "Prachesta-2", 249, [109, 50, 28, 13, 11, 39]], ["Kannauj", "Prachesta-2", 248, [110, 47, 25, 12, 8, 47]], ["Maharajganj", "Prachesta-2", 246, [115, 46, 20, 10, 9, 46]], ["Pilibhit", "Prachesta-2", 245, [106, 52, 28, 13, 8, 39]], ["Siddharthnagar", "Prachesta-2", 243, [111, 47, 25, 11, 8, 42]], ["Shahjahanpur", "Prachesta-2", 243, [113, 48, 25, 10, 8, 38]], ["Bahraich", "Prachesta-3", 239, [105, 52, 25, 12, 8, 37]]], "dpmu": ["Agra", "Aligarh", "Basti", "Ghaziabad", "Ghazipur", "Gorakhpur", "Jhansi", "Kanpur Nagar", "Moradabad", "Sitapur"], "pgidFramework": [{"cat": "1 \u00b7 Outcomes", "max": 290, "domains": [{"name": "Learning Outcomes & Quality (LOQ)", "max": 180, "inds": [["1.1.1", "% of children in Grade 3 achieving minimum proficiency in Language", 20, "RPS / NAS"], ["1.1.2", "% of children in Grade 3 achieving minimum proficiency in Mathematics", 20, "RPS / NAS"], ["1.1.3", "% of children in Grade 6 achieving grade-level proficiency in Language", 20, "RPS / NAS"], ["1.1.4", "% of children in Grade 6 achieving grade-level proficiency in Mathematics", 20, "RPS / NAS"], ["1.1.5", "% of children in Grade 6 achieving grade-level proficiency in The World Around Us", 20, "RPS / NAS"], ["1.1.6", "% of children in Grade 9 achieving grade-level proficiency in Language", 20, "RPS / NAS"], ["1.1.7", "% of children in Grade 9 achieving grade-level proficiency in Mathematics", 20, "RPS / NAS"], ["1.1.8", "% of children in Grade 9 achieving grade-level proficiency in Science", 20, "RPS / NAS"], ["1.1.9", "% of children in Grade 9 achieving grade-level proficiency in Social Science", 20, "RPS / NAS"]]}, {"name": "Access Outcomes (AO)", "max": 70, "inds": [["1.2.1", "% of children in Grade 1 who attended at least one year of pre-primary schooling", 20, "UDISE+"], ["1.2.2", "% of identified out-of-school children mainstreamed in last completed academic year", 10, "PRABANDH"], ["1.2.3", "Transition Rate: Primary to Upper Primary (Class 5 to 6)", 5, "UDISE+"], ["1.2.4", "Transition Rate: Upper Primary to Secondary (Class 8 to 9)", 5, "UDISE+"], ["1.2.5", "Retention Rate till Elementary level", 10, "UDISE+"], ["1.2.6", "Retention Rate of Boys at Secondary level", 10, "UDISE+"], ["1.2.7", "Retention Rate of Girls at Secondary level", 10, "UDISE+"]]}, {"name": "Teacher Availability & Professional Development Outcomes (TAPDO)", "max": 40, "inds": [["1.3.1", "% of Govt school teachers assigned non-teaching assignments (reverse-scored)", 5, "UDISE+"], ["1.3.2", "% of teachers who received training (subject, pedagogy, ICT, CWSN, leadership)", 5, "UDISE+"], ["1.3.3", "% of Primary schools with Pupil-Teacher Ratio below 30", 10, "UDISE+"], ["1.3.4", "% of Upper Primary schools with Pupil-Teacher Ratio below 30", 10, "UDISE+"], ["1.3.5", "% of schools with at least two CRC academic-support visits per month", 10, "UDISE+"]]}]}, {"cat": "2 \u00b7 Effective Classroom Transaction", "max": 90, "domains": [{"name": "Learning Management (LM)", "max": 60, "inds": [["2.1.1", "% of schools with primary section having Balvatika / pre-primary sections", 10, "UDISE+"], ["2.1.2", "% of schools actively undertaking academic enrichment activities", 5, "UDISE+"], ["2.1.3", "% of schools implementing Continuous and Comprehensive Evaluation (CCE)", 10, "UDISE+"], ["2.1.4", "% of schools where learning-outcome-based assessment items are created", 10, "UDISE+"], ["2.1.5", "% of students taught in the official language of the State/UT", 5, "UDISE+"], ["2.1.6", "% of schools using graded supplementary material in classroom transactions", 5, "UDISE+"], ["2.1.7", "% of schools where TLM (Teaching Learning Material) is available for each grade", 5, "UDISE+"], ["2.1.8", "% of Govt & aided schools providing a Holistic Report Card", 10, "UDISE+"]]}, {"name": "Learning Enrichment Activities (LEA)", "max": 30, "inds": [["2.2.1", "Swachh Bharat: functional Girls' toilet", 2, "UDISE+"], ["2.2.2", "Swachh Bharat: functional Boys' toilet", 2, "UDISE+"], ["2.2.3", "Swachh Bharat: CWSN-friendly toilet", 2, "UDISE+"], ["2.2.4", "Swachh Bharat: clean and potable drinking water facility", 2, "UDISE+"], ["2.2.5", "Swachh Bharat: hand-wash area(s)", 2, "UDISE+"], ["2.2.6", "Swachh Bharat: rainwater harvesting structures", 2, "UDISE+"], ["2.2.7", "FIT India: playground", 4, "UDISE+"], ["2.2.8", "FIT India: sports equipment", 4, "UDISE+"], ["2.2.9", "FIT India: certified as Fit India School", 4, "UDISE+"], ["2.2.10", "Ek Bharat Shreshtha Bharat: conducted at least one enlisted activity", 2, "UDISE+"], ["2.2.11", "Samagra Shiksha: School Management Committee constituted per guidelines", 4, "UDISE+"]]}]}, {"cat": "3 \u00b7 Infrastructure, Facilities & Entitlements", "max": 51, "domains": [{"name": "Infrastructure, Facilities, Student Entitlements (IF & SE)", "max": 51, "inds": [["3.1", "% of Elementary schools getting Free Textbooks within one month of academic year", 10, "UDISE+"], ["3.2", "% of Elementary schools getting Uniforms within one month of academic year", 10, "UDISE+"], ["3.3", "% of entitled CWSN who received aids and appliances", 5, "UDISE+"], ["3.4", "% of schools with Library and/or Reading Corner", 4, "UDISE+"], ["3.5", "% of schools with Ramp with railing", 4, "UDISE+"], ["3.6", "% of schools with Integrated Science laboratory", 4, "UDISE+"], ["3.7", "% of schools with Kitchen Garden", 4, "UDISE+"], ["3.8", "% of funds utilised under grant: Library books", 4, "UDISE+"], ["3.9", "% of funds utilised under grant: Sports equipment", 2, "UDISE+"], ["3.10", "% of funds utilised under Composite School Grant activities", 2, "UDISE+"], ["3.11", "% of schools having Eco and Youth Club", 2, "UDISE+"]]}]}, {"cat": "4 \u00b7 School Safety & Child Protection", "max": 35, "domains": [{"name": "School Safety & Child Protection (SS & CP)", "max": 35, "inds": [["4.1", "% of schools that appointed a teacher as first-level counsellor", 5, "UDISE+"], ["4.2", "% of schools where a Safety Audit (structural & non-structural) was conducted", 5, "UDISE+"], ["4.3", "% of schools where students & teachers undergo safety & disaster-preparedness training", 5, "UDISE+"], ["4.4", "% of schools maintaining annual health records of students", 5, "UDISE+"], ["4.5", "% of girl students provided self-defence training", 5, "UDISE+"], ["4.6", "% of schools that developed a School Disaster Management Plan (SDMP)", 5, "UDISE+"], ["4.7", "% of schools with self-certification from State School Standard Authority (SSSA)", 5, "UDISE+"]]}]}, {"cat": "5 \u00b7 Digital Learning", "max": 50, "domains": [{"name": "Digital Learning (DL)", "max": 50, "inds": [["5.1", "% of schools with internet facility for pedagogical purposes", 10, "UDISE+"], ["5.2", "% of schools with computer/laptop used for pedagogical purposes", 10, "UDISE+"], ["5.3", "% of schools with computer-assisted teaching-learning facility (smart classrooms)", 10, "UDISE+"], ["5.4", "Student-to-Computer Ratio (pedagogical-use computers)", 10, "UDISE+"], ["5.5", "% of teachers trained in computer use and teaching through computers", 10, "UDISE+"]]}]}, {"cat": "6 \u00b7 Governance Processes", "max": 84, "domains": [{"name": "Funds Convergence & Utilisation (FCV)", "max": 14, "inds": [["6.1", "% of Samagra Shiksha funds utilised (against funds received) in previous FY", 10, "UDISE+"], ["6.2", "% of schools that received financial assistance (NGOs, PSUs, community, etc.)", 4, "UDISE+"]]}, {"name": "Attendance Monitoring Systems (AMS)", "max": 40, "inds": [["6.3", "% of schools with digital attendance system to monitor teacher attendance", 15, "UDISE+"], ["6.4", "% of schools with digital attendance system to monitor student attendance", 15, "UDISE+"], ["6.5", "Average annual attendance of students", 10, "UDISE+"]]}, {"name": "School Leadership Development (SLD)", "max": 30, "inds": [["6.6", "% of schools meeting head-teacher norms for Primary level per RTE", 15, "UDISE+"], ["6.7", "% of schools meeting head-teacher norms for Upper Primary level per RTE", 15, "UDISE+"]]}]}]};</script>
+<script>
+/* ---------- helpers ---------- */
+function gradeColor(g){g=g||"";if(g.indexOf("Utkarsh")===0||g.indexOf("Uttam")===0)return"var(--green)";
+ if(g==="Prachesta-1")return"var(--gold)";if(g==="Prachesta-2")return"var(--orange)";
+ if(g==="Prachesta-3")return"#D2691E";return"var(--red)";}
+function pctColor(p){if(p>=75)return"var(--green)";if(p>=50)return"var(--gold)";if(p>=35)return"var(--orange)";return"var(--red)";}
+function pill(g){return '<span class="pill" style="background:'+gradeColor(g)+'">'+g+'</span>';}
+function bar(p){p=Math.max(0,Math.min(100,p));return '<div class="barcell"><div class="track"><div class="fill" style="width:'+p+'%;background:'+pctColor(p)+'"></div></div><div class="pct" style="color:'+pctColor(p)+'">'+p.toFixed(1)+'%</div></div>';}
+function el(id){return document.getElementById(id);}
+
+/* ---------- tabs ---------- */
+document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
+ document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
+ t.classList.add('active');
+ ['state','score','dist','method','pgidfw'].forEach(n=>el('tab-'+n).classList.add('hide'));
+ el('tab-'+t.dataset.tab).classList.remove('hide');
+});
+
+/* ============ STATE RANKINGS ============ */
+(function(){
+ const SD=DATA.stateDomains;            // [name,short,max]
+ let rows=DATA.states.map(s=>({name:s[0],overall:s[1],grade:s[2],d:s[3]}));
+ // rank by overall
+ const byOverall=[...rows].sort((a,b)=>b.overall-a.overall);
+ byOverall.forEach((r,i)=>r.rank=i+1);
+ const upRank=rows.find(r=>r.name==="Uttar Pradesh").rank;
+ el('hs-rank').innerHTML='<b>'+upRank+' / 36</b><span>by raw score</span>';
+
+ // cards
+ const top=byOverall[0], up=rows.find(r=>r.name==="Uttar Pradesh");
+ el('state-cards').innerHTML=[
+  ['#'+upRank+' / 36','UP position','by overall raw score'],
+  ['569.1','UP overall','grade Akanshi-1'],
+  [top.name,'Top State/UT',top.overall+' pts (Prachesta-1)'],
+  ['Equity','UP strongest domain','88.9% of weight'],
+  ['Learning Outcomes','UP weakest domain','33.9% of weight'],
+ ].map(c=>'<div class="stat"><div class="v" style="font-size:'+(c[0].length>8?'18px':'28px')+'">'+c[0]+'</div><div class="l">'+c[1]+'</div><div class="x">'+c[2]+'</div></div>').join('');
+
+ // domain selector
+ const sel=el('state-domain');
+ SD.forEach((d,i)=>sel.add(new Option('Rank by: '+d[0],i)));
+
+ let sortKey=-1, sortDir=-1; // -1 overall desc
+ function render(){
+  const q=el('state-search').value.trim().toLowerCase();
+  let data=rows.filter(r=>r.name.toLowerCase().includes(q));
+  const k=sortKey;
+  data.sort((a,b)=>{
+    let av,bv;
+    if(k===-1){av=a.overall;bv=b.overall;}
+    else if(k==='name'){return sortDir*a.name.localeCompare(b.name);}
+    else {av=a.d[k];bv=b.d[k];}
+    return sortDir*(av-bv);
+  });
+  // header
+  let h='<thead><tr><th class="num">Rank</th><th data-k="name">State / UT</th><th class="num" data-k="-1">Overall<br><small>/1000</small></th><th class="num">Grade</th>';
+  SD.forEach((d,i)=>h+='<th class="num" data-k="'+i+'" title="'+d[0]+'">'+d[1]+'<br><small>/'+d[2]+'</small></th>');
+  h+='</tr></thead>';
+  let b='<tbody>';
+  data.forEach(r=>{
+   const cls=(r.name==="Uttar Pradesh"?' class="hl"':'');
+   b+='<tr'+cls+'><td class="num rank">'+r.rank+'</td><td class="nm">'+r.name+'</td>'+
+      '<td class="num"><b>'+r.overall.toFixed(1)+'</b></td><td class="num">'+pill(r.grade)+'</td>';
+   SD.forEach((d,i)=>{const p=100*r.d[i]/d[2];
+     b+='<td class="num" style="color:'+pctColor(p)+';font-weight:600">'+r.d[i].toFixed(1)+'</td>';});
+   b+='</tr>';
+  });
+  b+='</tbody>';
+  el('state-tbl').innerHTML=h+b;
+  el('state-tbl').querySelectorAll('th[data-k]').forEach(th=>th.onclick=()=>{
+    const k=th.dataset.k==='name'?'name':parseInt(th.dataset.k);
+    if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=(k==='name')?1:-1;}
+    render();
+  });
+ }
+ el('state-search').oninput=render;
+ sel.onchange=()=>{sortKey=parseInt(sel.value);sortDir=-1;render();};
+ render();
+
+ // legend
+ el('grade-legend-1').innerHTML=gradeLegend();
+})();
+
+function gradeLegend(){
+ const gs=[["Uttam / Utkarsh","var(--green)"],["Prachesta-1","var(--gold)"],["Prachesta-2","var(--orange)"],["Prachesta-3","#D2691E"],["Akanshi","var(--red)"]];
+ return '<span style="font-weight:700;color:var(--ink)">Grades:</span>'+gs.map(g=>'<span class="it"><span class="sw" style="background:'+g[1]+'"></span>'+g[0]+'</span>').join('')+
+   '<span style="margin-left:8px;font-weight:700;color:var(--ink)">Domain cells:</span> coloured by % of that domain\u2019s weight (green \u226575% · gold \u226550% · orange \u226535% · red &lt;35%)';
+}
+
+/* ============ UP SCORECARD ============ */
+(function(){
+ const ID=DATA.indDomains;
+ const inds=DATA.indicators.map(i=>({id:i[0],dom:i[0].split('.')[0],desc:i[1],
+   w:parseFloat(i[2]),val:i[3],pts:parseFloat(i[4]||0),src:i[5]}));
+ // domain cards
+ const order=['1','2','3','4','5','6'];
+ let html='';
+ order.forEach(d=>{
+   const sub=inds.filter(i=>i.dom===d);
+   const pts=sub.reduce((a,i)=>a+i.pts,0), max=ID[d][1], p=100*pts/max;
+   html+='<div class="dom"><div class="dn">D'+d+' · '+ID[d][0]+'</div>'+
+     '<div class="dp" style="color:'+pctColor(p)+'">'+pts.toFixed(1)+'</div>'+
+     '<div class="dm">of '+max+' pts · '+p.toFixed(1)+'%</div>'+
+     '<div class="track"><div class="fill" style="width:'+p+'%;background:'+pctColor(p)+'"></div></div></div>';
+ });
+ el('dom-grid').innerHTML=html;
+
+ // selectors
+ const dsel=el('ind-domain'); order.forEach(d=>dsel.add(new Option('D'+d+' · '+ID[d][0],d)));
+ const ssel=el('ind-source'); [...new Set(inds.map(i=>i.src))].sort().forEach(s=>ssel.add(new Option(s,s)));
+
+ let sortKey='id', sortDir=1;
+ function render(){
+  const q=el('ind-search').value.trim().toLowerCase();
+  const fd=dsel.value, fs=ssel.value;
+  let data=inds.filter(i=>(fd==='0'||i.dom===fd)&&(fs==='0'||i.src===fs)&&
+     (i.desc.toLowerCase().includes(q)||i.id.includes(q)));
+  if(sortKey!=='id') data.sort((a,b)=>{let av=a[sortKey],bv=b[sortKey];
+     if(sortKey==='pctw'){av=a.pts/a.w;bv=b.pts/b.w;}
+     if(typeof av==='string')return sortDir*av.localeCompare(bv);return sortDir*(av-bv);});
+  else data.sort((a,b)=>{const pa=a.id.split('.'),pb=b.id.split('.');
+     if(pa[0]!==pb[0])return (pa[0]-pb[0])*sortDir;
+     return sortDir*a.id.localeCompare(b.id,undefined,{numeric:true});});
+
+  let h='<thead><tr><th data-k="id">ID</th><th data-k="desc">Indicator</th>'+
+    '<th class="num" data-k="val">Value</th><th class="num" data-k="w">Weight</th>'+
+    '<th class="num" data-k="pts">Points</th><th class="num" data-k="pctw">% of weight</th>'+
+    '<th data-k="src">Source</th></tr></thead><tbody>';
+  let curDom='';
+  data.forEach(i=>{
+   if(fd==='0' && sortKey==='id' && i.dom!==curDom){curDom=i.dom;
+     h+='<tr class="secrow"><td colspan="7">Domain '+i.dom+' · '+ID[i.dom][0]+' &nbsp;—&nbsp; '+ID[i.dom][2]+'</td></tr>';}
+   const p=100*i.pts/i.w;
+   h+='<tr><td class="num" style="font-weight:700;color:var(--navy)">'+i.id+'</td>'+
+      '<td style="white-space:normal;max-width:430px">'+i.desc+'</td>'+
+      '<td class="num">'+(i.val||'—')+'</td><td class="num">'+i.w+'</td>'+
+      '<td class="num"><b>'+i.pts.toFixed(1)+'</b></td><td>'+bar(p)+'</td>'+
+      '<td style="font-size:11.5px;color:var(--mute)">'+i.src+'</td></tr>';
+  });
+  h+='</tbody>';
+  el('ind-tbl').innerHTML=h;
+  el('ind-tbl').querySelectorAll('th[data-k]').forEach(th=>th.onclick=()=>{
+    const k=th.dataset.k; if(sortKey===k)sortDir*=-1;else{sortKey=k;sortDir=1;}render();});
+ }
+ el('ind-search').oninput=render; dsel.onchange=render; ssel.onchange=render;
+ render();
+})();
+
+/* ============ DISTRICT RANKINGS ============ */
+(function(){
+ const DC=DATA.distCats;
+ let rows=DATA.districts.map(r=>({name:r[0],grade:r[1],overall:r[2],c:r[3]}));
+ const byO=[...rows].sort((a,b)=>b.overall-a.overall); byO.forEach((r,i)=>r.rank=i+1);
+ const top=byO[0],bot=byO[byO.length-1];
+ const gd={}; rows.forEach(r=>gd[r.grade]=(gd[r.grade]||0)+1);
+ el('dist-cards').innerHTML=[
+  ['75','UP districts','PGI-D 2024-25'],
+  [top.name,'Top district',top.overall+' / 600'],
+  [bot.name,'Lowest district',bot.overall+' / 600'],
+  ['4 / 70 / 1','Prachesta 1 / 2 / 3','grade spread'],
+  ['Digital Learning','Weakest category','22% avg across districts'],
+ ].map(c=>'<div class="stat"><div class="v" style="font-size:'+(c[0].length>8?'18px':'28px')+'">'+c[0]+'</div><div class="l">'+c[1]+'</div><div class="x">'+c[2]+'</div></div>').join('');
+
+ const sel=el('dist-cat'); DC.forEach((d,i)=>sel.add(new Option('Rank by: '+d[0],i)));
+ let sortKey=-1,sortDir=-1;
+ function render(){
+  const q=el('dist-search').value.trim().toLowerCase();
+  let data=rows.filter(r=>r.name.toLowerCase().includes(q));
+  const k=sortKey;
+  data.sort((a,b)=>{if(k===-1)return sortDir*(a.overall-b.overall);
+    if(k==='name')return sortDir*a.name.localeCompare(b.name);
+    return sortDir*(a.c[k]-b.c[k]);});
+  let h='<thead><tr><th class="num">Rank</th><th data-k="name">District</th><th class="num" data-k="-1">Overall<br><small>/600</small></th><th class="num">Grade</th>';
+  DC.forEach((d,i)=>h+='<th class="num" data-k="'+i+'" title="'+d[0]+'">'+d[1]+'<br><small>/'+d[2]+'</small></th>');
+  h+='</tr></thead><tbody>';
+  data.forEach(r=>{
+   h+='<tr><td class="num rank">'+r.rank+'</td><td class="nm">'+r.name+'</td>'+
+      '<td class="num"><b>'+r.overall+'</b></td><td class="num">'+pill(r.grade)+'</td>';
+   DC.forEach((d,i)=>{const p=100*r.c[i]/d[2];
+     h+='<td class="num" style="color:'+pctColor(p)+';font-weight:600">'+r.c[i]+'</td>';});
+   h+='</tr>';
+  });
+  h+='</tbody>';
+  el('dist-tbl').innerHTML=h;
+  el('dist-tbl').querySelectorAll('th[data-k]').forEach(th=>th.onclick=()=>{
+    const kk=th.dataset.k==='name'?'name':parseInt(th.dataset.k);
+    if(sortKey===kk)sortDir*=-1;else{sortKey=kk;sortDir=(kk==='name')?1:-1;}render();});
+ }
+ el('dist-search').oninput=render; sel.onchange=()=>{sortKey=parseInt(sel.value);sortDir=-1;render();};
+ render();
+ el('grade-legend-2').innerHTML=gradeLegend();
+})();
+/* ============ PGI-D FRAMEWORK ============ */
+(function(){
+ const FW=DATA.pgidFramework;
+ // flatten
+ const flat=[];
+ FW.forEach(c=>c.domains.forEach(d=>d.inds.forEach(i=>flat.push(
+   {cat:c.cat,catMax:c.max,dom:d.name,domMax:d.max,id:i[0],desc:i[1],w:i[2],src:i[3]}))));
+ const srcColor=s=>s.indexOf('RPS')===0?'var(--green)':s.indexOf('PRABANDH')===0?'var(--orange)':'var(--navy2)';
+
+ // summary cards
+ el('fw-cards').innerHTML=[
+  ['6','Categories','of district performance'],
+  ['11','Domains','within the categories'],
+  ['70','Indicators','total'],
+  ['600','Points','full weight'],
+ ].map(c=>'<div class="stat"><div class="v">'+c[0]+'</div><div class="l">'+c[1]+'</div><div class="x">'+c[2]+'</div></div>').join('');
+
+ // filters
+ const csel=el('fw-cat'); FW.forEach(c=>csel.add(new Option(c.cat+'  ('+c.max+' pts)',c.cat)));
+ const ssel=el('fw-source'); [...new Set(flat.map(f=>f.src))].sort().forEach(s=>ssel.add(new Option(s,s)));
+
+ function render(){
+  const q=el('fw-search').value.trim().toLowerCase();
+  const fc=csel.value, fs=ssel.value;
+  const data=flat.filter(f=>(fc==='0'||f.cat===fc)&&(fs==='0'||f.src===fs)&&
+     (f.desc.toLowerCase().includes(q)||f.id.includes(q)));
+  let h='<thead><tr><th>ID</th><th>Indicator</th><th class="num">Weight</th><th>Data source</th></tr></thead><tbody>';
+  let curC='',curD='';
+  data.forEach(f=>{
+   if(f.cat!==curC){curC=f.cat;curD='';
+     h+='<tr class="secrow"><td colspan="4">Category '+f.cat+' &nbsp;—&nbsp; '+f.catMax+' points</td></tr>';}
+   if(f.dom!==curD){curD=f.dom;
+     h+='<tr class="domrow"><td colspan="4">'+f.dom+'<span class="dw">'+f.domMax+' pts</span></td></tr>';}
+   h+='<tr><td class="num" style="font-weight:700;color:var(--navy)">'+f.id+'</td>'+
+      '<td style="white-space:normal;max-width:560px">'+f.desc+'</td>'+
+      '<td class="num"><b>'+f.w+'</b></td>'+
+      '<td><span class="pill" style="background:'+srcColor(f.src)+';font-size:10px">'+f.src+'</span></td></tr>';
+  });
+  if(!data.length) h+='<tr><td colspan="4" style="text-align:center;color:var(--mute);padding:18px">No indicators match.</td></tr>';
+  h+='</tbody>';
+  el('fw-tbl').innerHTML=h;
+ }
+ el('fw-search').oninput=render; csel.onchange=render; ssel.onchange=render;
+ render();
+})();
+</script>
+</html>
