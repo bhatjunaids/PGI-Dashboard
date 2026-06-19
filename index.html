@@ -114,6 +114,11 @@ tbody tr.hl td{font-weight:600}
 .mex .c .calc{font-size:12px;color:#3A475C;margin-top:7px;font-variant-numeric:tabular-nums;line-height:1.55}
 .mex .c .res{margin-top:9px;font-size:12.5px}
 .note{background:#FBEEE4;border:1px solid var(--orange);border-radius:10px;padding:12px 15px;font-size:12.5px;color:#5A3A24;line-height:1.55;margin-top:4px}
+.an-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+@media(max-width:760px){.an-grid{grid-template-columns:1fr}}
+.an-head{display:flex;align-items:center;gap:9px;font-family:Cambria,Georgia,serif;font-size:16px;font-weight:700;margin-bottom:10px}
+.an-head .ic{width:26px;height:26px;border-radius:7px;display:flex;align-items:center;justify-content:center;color:#fff;font-size:14px;font-weight:800}
+.bigsel{padding:11px 14px;border:1.5px solid var(--navy2);border-radius:9px;font-size:14px;font-weight:700;color:var(--navy);background:#fff;font-family:inherit;cursor:pointer}
 .secrow td{background:#EDF1F8 !important;font-weight:800;color:var(--navy);font-family:Cambria,Georgia,serif;font-size:13px}
 .domrow td{background:#F7F9FC !important;font-weight:700;color:var(--navy2);font-size:12px}
 .domrow td .dw{float:right;color:var(--mute);font-weight:600}
@@ -142,6 +147,7 @@ tbody tr.hl td{font-weight:600}
   <button class="tab active" data-tab="state"><span class="dot"></span>State Rankings <small>PGI 2.0</small></button>
   <button class="tab" data-tab="score"><span class="dot"></span>UP Scorecard <small>indicator-level</small></button>
   <button class="tab" data-tab="dist"><span class="dot"></span>District Rankings <small>PGI-D</small></button>
+  <button class="tab" data-tab="analysis"><span class="dot"></span>Analysis <small>top &amp; bottom 5</small></button>
   <button class="tab" data-tab="method"><span class="dot"></span>Methodology <small>how scores work</small></button>
   <button class="tab" data-tab="pgidfw"><span class="dot"></span>PGI-D Framework <small>district indicators</small></button>
  </div>
@@ -193,6 +199,36 @@ tbody tr.hl td{font-weight:600}
    <div class="tbl-scroll"><table id="dist-tbl"></table></div>
    <div class="legend" id="grade-legend-2"></div>
    <div class="foot">Source: PGI-D for Districts 2024-25 (DoSE&amp;L). Categories Outcomes/ECT/IF&amp;SE/SS&amp;CP/DL/GP carry 290/90/51/35/50/84 points.</div>
+  </div>
+ </section>
+
+ <!-- ANALYSIS -->
+ <section id="tab-analysis" class="hide">
+  <div class="panel" style="padding-bottom:16px">
+   <h2>District Analysis — Top &amp; Bottom 5</h2>
+   <div class="ph-sub">Choose a dimension to see the five strongest and five weakest UP districts on it. PGI-D publishes district scores at category level, so analysis is available for the overall score and the six categories.</div>
+   <div class="controls">
+    <label style="font-weight:700;color:var(--navy);font-size:13px">Analyse by:</label>
+    <select id="an-dim" class="bigsel"></select>
+    <span class="hint" id="an-spread"></span>
+   </div>
+   <div class="cards" id="an-cards" style="margin-bottom:0"></div>
+  </div>
+  <div class="an-grid">
+   <div class="panel">
+    <div class="an-head"><span class="ic" style="background:var(--green)">&#9650;</span><span id="an-top-title">Top 5</span></div>
+    <div class="tbl-scroll"><table id="an-top"></table></div>
+   </div>
+   <div class="panel">
+    <div class="an-head"><span class="ic" style="background:var(--red)">&#9660;</span><span id="an-bot-title">Bottom 5</span></div>
+    <div class="tbl-scroll"><table id="an-bot"></table></div>
+   </div>
+  </div>
+  <div class="panel">
+   <div class="an-head" style="font-size:15px"><span class="ic" style="background:var(--navy2)">&#9776;</span>Full ranking on this dimension</div>
+   <div class="ph-sub" style="margin-bottom:10px">All 75 districts ordered by the selected dimension. The UP average is marked for reference.</div>
+   <div id="an-bars"></div>
+   <div class="foot" id="an-foot"></div>
   </div>
  </section>
 
@@ -343,7 +379,7 @@ function el(id){return document.getElementById(id);}
 document.querySelectorAll('.tab').forEach(t=>t.onclick=()=>{
  document.querySelectorAll('.tab').forEach(x=>x.classList.remove('active'));
  t.classList.add('active');
- ['state','score','dist','method','pgidfw'].forEach(n=>el('tab-'+n).classList.add('hide'));
+ ['state','score','dist','method','pgidfw','analysis'].forEach(n=>el('tab-'+n).classList.add('hide'));
  el('tab-'+t.dataset.tab).classList.remove('hide');
 });
 
@@ -566,5 +602,72 @@ function gradeLegend(){
  el('fw-search').oninput=render; csel.onchange=render; ssel.onchange=render;
  render();
 })();
+
+/* ============ ANALYSIS (top & bottom 5) ============ */
+(function(){
+ const districts=DATA.districts.map(r=>({name:r[0],grade:r[1],overall:r[2],c:r[3]}));
+ const dims=[{key:-1,name:"Overall PGI-D score",max:600}]
+   .concat(DATA.distCats.map((c,i)=>({key:i,name:c[0],max:c[2]})));
+ const sel=el('an-dim');
+ dims.forEach((d,i)=>sel.add(new Option(d.name+"  (/"+d.max+")",i)));
+
+ function tableHTML(arr,withGrade,max){
+  let h='<thead><tr><th class="num">Rank</th><th>District</th><th class="num">Score</th>'+
+        (withGrade?'<th class="num">Grade</th>':'')+'<th>% of '+(withGrade?'600':'weight')+'</th></tr></thead><tbody>';
+  arr.forEach(r=>{
+   const p=100*r.val/max;
+   h+='<tr><td class="num rank">'+r.rank+'</td><td class="nm">'+r.name+'</td>'+
+      '<td class="num"><b>'+(Number.isInteger(r.val)?r.val:r.val.toFixed(1))+'</b></td>'+
+      (withGrade?'<td class="num">'+pill(r.grade)+'</td>':'')+
+      '<td>'+bar(p)+'</td></tr>';
+  });
+  h+='</tbody>'; return h;
+ }
+
+ function render(){
+  const dim=dims[parseInt(sel.value)];
+  const withGrade=dim.key===-1;
+  let list=districts.map(d=>({name:d.name,grade:d.grade,val:dim.key===-1?d.overall:d.c[dim.key]}));
+  list.sort((a,b)=>b.val-a.val);
+  list.forEach((r,i)=>r.rank=i+1);
+  const n=list.length, max=dim.max;
+  const avg=list.reduce((a,r)=>a+r.val,0)/n;
+  const hi=list[0], lo=list[n-1];
+
+  el('an-top-title').textContent='Top 5 — '+dim.name;
+  el('an-bot-title').textContent='Bottom 5 — '+dim.name;
+  el('an-spread').textContent='Range '+(Number.isInteger(lo.val)?lo.val:lo.val.toFixed(1))+'–'+(Number.isInteger(hi.val)?hi.val:hi.val.toFixed(1))+' of '+max+'  ·  UP avg '+avg.toFixed(1);
+
+  el('an-cards').innerHTML=[
+   [max+' pts','Dimension weight',dim.name],
+   [avg.toFixed(1),'UP average',(100*avg/max).toFixed(1)+'% of weight'],
+   [hi.name,'Highest district',(Number.isInteger(hi.val)?hi.val:hi.val.toFixed(1))+'  ('+(100*hi.val/max).toFixed(0)+'%)'],
+   [lo.name,'Lowest district',(Number.isInteger(lo.val)?lo.val:lo.val.toFixed(1))+'  ('+(100*lo.val/max).toFixed(0)+'%)'],
+  ].map(c=>'<div class="stat"><div class="v" style="font-size:'+(String(c[0]).length>8?'17px':'26px')+'">'+c[0]+'</div><div class="l">'+c[1]+'</div><div class="x">'+c[2]+'</div></div>').join('');
+
+  el('an-top').innerHTML=tableHTML(list.slice(0,5),withGrade,max);
+  el('an-bot').innerHTML=tableHTML(list.slice(-5),withGrade,max);
+
+  const avgPct=100*avg/max;
+  let b='<div style="max-height:360px;overflow-y:auto;border:1px solid var(--line);border-radius:10px;padding:6px 10px">';
+  list.forEach(r=>{
+   const p=100*r.val/max;
+   b+='<div style="display:flex;align-items:center;gap:10px;padding:3px 0">'+
+      '<div style="width:26px;text-align:right;font-size:11px;color:var(--mute);font-variant-numeric:tabular-nums">'+r.rank+'</div>'+
+      '<div style="width:140px;font-size:12px;font-weight:600;color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">'+r.name+'</div>'+
+      '<div style="flex:1;height:13px;background:#EEF1F7;border-radius:4px;overflow:hidden">'+
+        '<div style="height:100%;width:'+Math.max(1,p)+'%;background:'+pctColor(p)+';border-radius:4px"></div>'+
+      '</div>'+
+      '<div style="width:82px;text-align:right;font-size:11.5px;font-weight:700;color:'+pctColor(p)+';font-variant-numeric:tabular-nums">'+
+        (Number.isInteger(r.val)?r.val:r.val.toFixed(1))+' · '+p.toFixed(0)+'%</div>'+
+      '</div>';
+  });
+  b+='</div>';
+  el('an-bars').innerHTML=b;
+  el('an-foot').innerHTML='Bars coloured by % of dimension weight (green &ge;75% &middot; gold &ge;50% &middot; orange &ge;35% &middot; red &lt;35%). UP average on this dimension: <b>'+avg.toFixed(1)+'</b> ('+avgPct.toFixed(1)+'% of weight). Source: PGI-D for Districts 2024-25.';
+ }
+ sel.onchange=render; sel.value=0; render();
+})();
 </script>
+</body>
 </html>
